@@ -1,5 +1,5 @@
 /* START SOLUTION */
-var $ = require('jquery');
+// var $ = require('../lib/jquery.js');
 
 var app;
 $(function() {
@@ -8,7 +8,7 @@ $(function() {
 //to all messages sent by the user
     // server: 'http://localhost:3000/classes/chatterbox/',
     server: 'http://localhost:3000/',
-    username: 'anonymous',
+    username: 'Carl',
     roomname: 'lobby',
     lastMessageId: 0,
     friends: {},
@@ -37,13 +37,14 @@ $(function() {
       setInterval(app.fetch, 3000);
     },
     send: function(data) {
+      console.log(data)
       app.startSpinner();
       // Clear messages input
       app.$message.val('');
 
       // POST the message to the server
       $.ajax({
-        url: app.server,
+        url: app.server + 'classes/messages',
         type: 'POST',
         data: JSON.stringify(data),
         contentType: 'application/json',
@@ -59,7 +60,7 @@ $(function() {
     },
     fetch: function(animate) {
       $.ajax({
-        url: app.server,
+        url: app.server + 'classes',
         type: 'GET',
         contentType: 'application/json',
         data: { order: '-createdAt'},
@@ -101,10 +102,10 @@ $(function() {
 
       app.clearMessages();
       app.stopSpinner();
-      if (Array.isArray(results)) {
-        // Add all fetched messages
-        results.forEach(app.addMessage);
-      }
+
+      _.each(results, function(message) {
+        app.addMessage(message);
+      })
 
       // Make it scroll to the bottom
       var scrollTop = app.$chats.prop('scrollHeight');
@@ -145,11 +146,12 @@ $(function() {
       app.$roomSelect.append($option);
     },
     addMessage: function(data) {
-      if (!data.roomname)
+      if (!data.roomname){
         data.roomname = 'lobby';
+      }
 
       // Only add messages that are in our current room
-      if (data.roomname === app.roomname) {
+      // if (data.roomname === app.roomname) {
         // Create a div to hold the chats
         var $chat = $('<div class="chat"/>');
 
@@ -157,17 +159,19 @@ $(function() {
         // Store the username in the element's data
         var $username = $('<span class="username"/>');
         $username.text(data.username+': ').attr('data-username', data.username).attr('data-roomname',data.roomname).appendTo($chat);
+        console.log(data.roomname)
 
         // Add the friend class
-        if (app.friends[data.username] === true)
+        if (app.friends[data.username] === true) {
           $username.addClass('friend');
+        }
 
         var $message = $('<br><span/>');
         $message.text(data.text).appendTo($chat);
 
         // Add the message to the UI
         app.$chats.append($chat);
-      }
+      // }
     },
     addFriend: function(evt) {
       var username = $(evt.currentTarget).attr('data-username');
