@@ -1,4 +1,6 @@
 /* START SOLUTION */
+var $ = require('jquery');
+
 var app;
 $(function() {
   app = {
